@@ -1,14 +1,16 @@
 import asyncio
 import aiohttp
-import psutil  # for getting resource usage
+import psutil
 import time
-import uuid  # for generating UUIDs
+import uuid
 
 async def send_resource_usage():
-    client_id = str(uuid.uuid4())  # Generate a random UUID for the client
+
+    client_id = str(uuid.uuid4())
     last_bytes_sent = psutil.net_io_counters().bytes_sent
     last_bytes_recv = psutil.net_io_counters().bytes_recv
     start_time = time.time()
+
     async with aiohttp.ClientSession() as session:
         while True:
             current_bytes_sent = psutil.net_io_counters().bytes_sent
@@ -22,6 +24,7 @@ async def send_resource_usage():
                 download_speed = (current_bytes_recv - last_bytes_recv) / elapsed_time / 1000 / 1000 # mb
             cpu_percent = psutil.cpu_percent()
             memory_percent = psutil.virtual_memory().percent
+
             payload = {
                 "client_id": client_id,
                 "upload_speed": upload_speed,
@@ -37,7 +40,7 @@ async def send_resource_usage():
             last_bytes_sent = current_bytes_sent
             last_bytes_recv = current_bytes_recv
             start_time = time.time()
-            await asyncio.sleep(1)  # Send data every second
+            await asyncio.sleep(1) 
 
 if __name__ == "__main__":
     asyncio.run(send_resource_usage())
